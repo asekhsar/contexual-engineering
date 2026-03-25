@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contextual Engineering in Agentic Workflow</title>
+<style>
+:root {
+  --bg:#08111d;
+  --bg2:#0a1424;
+  --panel:#10192c;
+  --panel2:#0f1728;
+  --card:#121c31;
+  --text:#edf3ff;
+  --muted:#a9b6d0;
+  --line:rgba(255,255,255,.09);
+  --cyan:#36d7ff;
+  --blue:#5ea1ff;
+  --green:#5be7b9;
+  --gold:#ffcb6b;
+  --shadow:0 28px 70px rgba(0,0,0,.35);
+  --radius:28px;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0;
+  color:var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(54,215,255,.12), transparent 22%),
+    radial-gradient(circle at 80% 8%, rgba(94,161,255,.10), transparent 18%),
+    linear-gradient(180deg, #07101c 0%, #091322 100%);
+  line-height:1.74;
+}
+a { color:#9fe6ff; text-decoration:none; }
+a:hover { text-decoration:underline; }
+h1,h2,h3 { letter-spacing:-.025em; }
+.wrapper { max-width:1180px; margin:0 auto; padding:0 24px; }
+.nav {
+  position:sticky; top:0; z-index:30;
+  backdrop-filter: blur(16px);
+  background: rgba(8,12,22,.72);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner {
+  min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:18px;
+}
+.brand {
+  color:var(--cyan); font-weight:800; text-transform:uppercase; letter-spacing:.08em; font-size:.92rem;
+}
+.nav-links { display:flex; flex-wrap:wrap; gap:18px; color:var(--muted); font-size:.94rem; }
+.hero { padding:84px 0 34px; }
+.read-time {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:10px 14px; border-radius:999px;
+  background:rgba(54,215,255,.08); color:var(--cyan);
+  border:1px solid rgba(54,215,255,.18); font-size:.9rem; font-weight:700;
+}
+h1 {
+  margin:18px 0 14px;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: clamp(2.8rem, 5vw, 4.8rem);
+  line-height:1.05;
+  max-width: 920px;
+}
+.lead {
+  max-width:930px; font-size:1.14rem; color:#d4ddf5; margin:0;
+}
+.hero-grid {
+  display:grid; grid-template-columns:1.1fr .9fr; gap:24px; margin-top:28px;
+}
+.panel {
+  background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.018));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.panel.pad { padding:28px; }
+.metric-grid {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px;
+}
+.metric {
+  padding:18px; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.025);
+}
+.metric strong { display:block; font-size:1.55rem; margin-bottom:4px; }
+.metric span { color:var(--muted); font-size:.92rem; }
+.callout {
+  margin-top:18px;
+  padding:18px 20px;
+  border-left:4px solid var(--cyan);
+  border-radius:0 18px 18px 0;
+  background:rgba(54,215,255,.06);
+  color:#def8ff;
+}
+.quote {
+  display:flex; align-items:center; justify-content:center; height:100%;
+}
+.quote p {
+  margin:0; font-size:1.16rem; color:#f2f7ff;
+}
+.quote em { color:var(--cyan); font-style:normal; font-weight:700; }
+section { padding:38px 0; }
+.section-head { max-width:900px; margin-bottom:22px; }
+.section-head h2 {
+  margin:0 0 10px;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height:1.15;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+.section-head p { margin:0; color:var(--muted); font-size:1.02rem; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.card { padding:24px; }
+.card p { margin:0 0 15px; color:#dce5fb; }
+.stack { display:grid; gap:24px; }
+.diagram-wrap { display:grid; gap:20px; }
+.arch-one {
+  padding:28px;
+}
+.arch-headline {
+  display:grid; grid-template-columns:220px 1fr; gap:18px; align-items:start;
+}
+.manager {
+  padding:22px; border-radius:24px;
+  background:linear-gradient(135deg, rgba(91,231,185,.18), rgba(54,215,255,.14));
+  border:1px solid rgba(91,231,185,.24);
+}
+.manager h3 { margin:0 0 8px; font-size:1.2rem; font-family:Inter,system-ui,sans-serif; }
+.manager p { margin:0; color:#dffcf4; font-size:.95rem; }
+.arch-stages {
+  display:grid; gap:14px;
+}
+.stage {
+  position:relative;
+  padding:18px 22px; border-radius:22px;
+  background:rgba(255,255,255,.028); border:1px solid var(--line);
+}
+.stage:before {
+  content:""; position:absolute; left:-15px; top:50%; transform:translateY(-50%);
+  width:15px; height:2px; background:linear-gradient(90deg, var(--green), var(--cyan));
+}
+.stage h4 { margin:0 0 6px; color:var(--cyan); font-size:1rem; font-family:Inter,system-ui,sans-serif; }
+.stage p { margin:0; color:var(--muted); font-size:.95rem; }
+.pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.pill {
+  padding:6px 10px; border-radius:999px; font-size:.8rem;
+  color:#ced7ff; border:1px solid rgba(151,167,255,.14); background:rgba(151,167,255,.07);
+}
+.arch-two {
+  padding:28px;
+}
+.flowline {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:16px; align-items:stretch;
+}
+.node {
+  padding:18px; border-radius:22px; border:1px solid var(--line); background:rgba(255,255,255,.03);
+  position:relative;
+}
+.node:not(:last-child):after {
+  content:"→"; position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+  color:var(--cyan); font-weight:800;
+}
+.node h4 { margin:0 0 8px; font-size:1rem; font-family:Inter,system-ui,sans-serif; }
+.node p { margin:0; color:var(--muted); font-size:.93rem; }
+.memory-layout {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+}
+.memory-cards {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+.memory-card {
+  padding:22px; border-radius:22px; border:1px solid var(--line); background:rgba(255,255,255,.028);
+}
+.memory-card h3 { margin:0 0 8px; font-size:1.04rem; font-family:Inter,system-ui,sans-serif; }
+.memory-card p { margin:0 0 8px; color:var(--muted); }
+.memory-card strong { color:var(--cyan); }
+.code-card { overflow:hidden; }
+.code-head {
+  padding:14px 18px; border-bottom:1px solid var(--line); color:var(--muted); background:rgba(255,255,255,.03); font-size:.9rem;
+}
+pre {
+  margin:0; padding:20px; overflow:auto; background:#07111b; color:#d8fff0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:.86rem; line-height:1.6;
+}
+.context-split {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+.context-box {
+  padding:22px; border-radius:22px; border:1px solid var(--line); background:rgba(255,255,255,.03);
+}
+.context-box h3 { margin:0 0 12px; font-size:1.03rem; font-family:Inter,system-ui,sans-serif; }
+.checklist { margin:0; padding-left:18px; }
+.checklist li { margin:8px 0; color:#dce5fb; }
+.stage-showcase { display:grid; gap:24px; }
+.stage-card {
+  overflow:hidden;
+}
+.stage-top {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.03);
+}
+.stage-top h3 {
+  margin:0; font-size:1rem; font-family:Inter,system-ui,sans-serif;
+}
+.stage-body { display:grid; gap:0; }
+.figure-img img {
+  width:100%; display:block; height:auto;
+}
+.explain {
+  padding:18px 20px;
+  border-top:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(54,215,255,.05), rgba(255,255,255,.015));
+}
+.explain h4 {
+  margin:0 0 8px; font-size:1rem; color:var(--cyan); font-family:Inter,system-ui,sans-serif;
+}
+.explain p { margin:0; color:var(--muted); }
+.refine-layout {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+}
+.loop-hero {
+  padding:26px;
+}
+.loop-title {
+  font-size: clamp(1.95rem, 3.2vw, 2.7rem);
+  line-height:1.18; margin:0 0 14px;
+}
+.serif-title {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing:-0.02em;
+}
+.loop-sub { color:var(--muted); margin:0 0 18px; }
+.loop-flow {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; align-items:center;
+}
+.loop-box {
+  padding:18px; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.03); position:relative;
+  text-align:center; font-weight:700;
+}
+.loop-box:not(:last-child):after {
+  content:"→"; position:absolute; right:-13px; top:50%; transform:translateY(-50%); color:var(--cyan); font-weight:800;
+}
+.refine-chat {
+  border-radius:26px; border:1px solid var(--line); overflow:hidden; background:linear-gradient(180deg, #0a1120, #0c1426);
+}
+.chat-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; border-bottom:1px solid var(--line); color:var(--muted); background:rgba(255,255,255,.025); font-size:.9rem;
+}
+.dots { display:flex; gap:8px; }
+.dots span { width:10px; height:10px; border-radius:999px; background:#20304e; display:block; }
+.chat-body { padding:18px; display:grid; gap:14px; }
+.msg-row { display:flex; }
+.msg-row.user { justify-content:flex-end; }
+.bubble {
+  max-width:80%; padding:14px 16px; border-radius:18px; border:1px solid var(--line);
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+.bubble.assistant { background:#171e31; color:#eff4ff; border-top-left-radius:8px; }
+.bubble.user {
+  background:linear-gradient(135deg, rgba(54,215,255,.16), rgba(94,161,255,.16));
+  color:#f6fbff; border-top-right-radius:8px;
+}
+.state-chip {
+  display:inline-block; margin-top:10px; padding:5px 9px; border-radius:999px;
+  background:rgba(91,231,185,.1); color:var(--green); border:1px solid rgba(91,231,185,.18); font-size:.78rem;
+}
+.sources {
+  display:grid; gap:14px;
+}
+.source-item {
+  padding:18px; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.03);
+}
+.source-item h4 { margin:0 0 6px; font-size:1rem; font-family:Inter,system-ui,sans-serif; }
+.source-item p { margin:0; color:var(--muted); }
+footer { padding:34px 0 76px; }
+.footer-card {
+  padding:24px 28px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px;
+}
+.footer-card p { margin:0; color:var(--muted); max-width:720px; }
+.signature { text-align:right; }
+.signature strong { display:block; font-size:1.05rem; }
+.signature span { color:var(--muted); }
+@media (max-width:1020px) {
+  .hero-grid, .grid-2, .memory-layout, .memory-cards, .context-split, .refine-layout {
+    grid-template-columns:1fr;
+  }
+  .flowline { grid-template-columns:1fr; }
+  .node:not(:last-child):after, .loop-box:not(:last-child):after { display:none; }
+  .arch-headline { grid-template-columns:1fr; }
+  .metric-grid { grid-template-columns:1fr; }
+  .nav-links { display:none; }
+  .loop-flow { grid-template-columns:1fr; }
+}
+
+.concept-block {
+  padding: 34px;
+  position: relative;
+  overflow: hidden;
+}
+.concept-block:before {
+  content:"";
+  position:absolute;
+  inset:-20% auto auto -10%;
+  width:320px; height:320px;
+  background: radial-gradient(circle, rgba(54,215,255,.14), transparent 62%);
+  pointer-events:none;
+}
+.concept-block:after {
+  content:"";
+  position:absolute;
+  inset:auto -8% -18% auto;
+  width:320px; height:320px;
+  background: radial-gradient(circle, rgba(94,161,255,.12), transparent 64%);
+  pointer-events:none;
+}
+.concept-panel {
+  display: grid;
+  gap: 20px;
+  position:relative;
+  z-index:1;
+}
+.concept-header {
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:18px;
+  align-items:end;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.concept-kicker {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:999px;
+  background:rgba(54,215,255,.08);
+  border:1px solid rgba(54,215,255,.18);
+  color:var(--cyan); font-size:.82rem; font-weight:800; letter-spacing:.04em;
+  margin-bottom:12px;
+}
+.concept-header h3 {
+  margin:0; font-size:1.72rem; line-height:1.15;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+.concept-header p {
+  margin:0; color:var(--muted);
+}
+.transition-strip {
+  display:grid;
+  grid-template-columns: 1fr 64px 1.2fr;
+  gap:16px;
+  align-items:center;
+}
+.transition-card {
+  padding:20px; border-radius:22px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+}
+.transition-card h4 {
+  margin:0 0 8px; font-size:1rem; font-family:Inter,system-ui,sans-serif;
+}
+.transition-card p { margin:0; color:var(--muted); font-size:.93rem; }
+.transition-arrow {
+  display:grid; place-items:center;
+  width:64px; height:64px; border-radius:18px;
+  background:linear-gradient(135deg, rgba(91,231,185,.16), rgba(54,215,255,.16));
+  border:1px solid rgba(54,215,255,.16);
+  color:var(--cyan); font-size:1.7rem; font-weight:900;
+}
+.stack-rows {
+  display:grid; gap:18px;
+}
+.stack-row {
+  display:grid; grid-template-columns: 190px 1fr 180px; gap:16px; align-items:stretch;
+}
+.row-label {
+  padding:20px; border-radius:20px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  display:flex; flex-direction:column; justify-content:center;
+}
+.row-label h4 {
+  margin:0 0 6px; font-size:1rem; font-family:Inter,system-ui,sans-serif; color:var(--cyan);
+}
+.row-label p {
+  margin:0; color:var(--muted); font-size:.9rem;
+}
+.row-track {
+  padding:16px; border-radius:22px; border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
+  display:grid; gap:12px;
+}
+.token-grid {
+  display:flex; flex-wrap:wrap; gap:10px;
+}
+.token {
+  position:relative;
+  padding:11px 13px 11px 38px; border-radius:14px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); color:#dce6ff; font-size:.9rem;
+}
+.token:before {
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  font-size:1rem;
+}
+.token.static { border-color: rgba(151,167,255,.18); background: rgba(151,167,255,.08); }
+.token.static:before { content:"🧭"; }
+.token.memory { border-color: rgba(91,231,185,.18); background: rgba(91,231,185,.08); }
+.token.memory:before { content:"🗂️"; }
+.token.live { border-color: rgba(54,215,255,.18); background: rgba(54,215,255,.08); }
+.token.live:before { content:"⚡"; }
+.token.output { border-color: rgba(255,203,107,.18); background: rgba(255,203,107,.09); }
+.token.output:before { content:"✅"; }
+.track-note {
+  color:var(--muted); font-size:.92rem;
+}
+.row-side {
+  padding:18px; border-radius:20px;
+  border:1px dashed rgba(54,215,255,.28);
+  background:rgba(54,215,255,.045);
+  display:grid; place-items:center; text-align:center;
+}
+.row-side strong {
+  display:block; color:var(--cyan); margin-bottom:6px; font-size:.96rem;
+}
+.curator {
+  display:grid; grid-template-columns: 1fr auto 1.15fr auto 1fr; gap:12px; align-items:center;
+}
+.curator-box {
+  padding:18px; border-radius:20px; border:1px solid var(--line); background:rgba(255,255,255,.03);
+  text-align:center;
+}
+.curator-box strong {
+  display:block; margin-bottom:6px;
+}
+.arrow {
+  color:var(--cyan); font-size:1.45rem; font-weight:800; text-align:center;
+}
+.concept-foot {
+  margin-top: 4px;
+  padding:18px 20px; border-radius:20px;
+  background:rgba(255,255,255,.025); border:1px solid var(--line);
+  color:#dbe5fc;
+}
+@media (max-width: 1020px) {
+  .concept-header, .transition-strip, .stack-row, .curator { grid-template-columns:1fr; }
+  .transition-arrow, .arrow { display:none; }
+}
+
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrapper nav-inner">
+    <div class="brand">Contextual Engineering</div>
+    <div class="nav-links">
+      <a href="#concept">Concept</a>
+      <a href="#intro">Intro</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#state">State</a>
+      <a href="#feedback">Feedback</a>
+      <a href="#context">Dynamic Context</a>
+      <a href="#sources">Sources</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrapper">
+    <div class="read-time">30 min read</div>
+    <h1>Contextual Engineering in Agentic Workflow</h1>
+    <p class="lead">
+      I wanted to explain contextual engineering through something concrete, so I built the narrative around a multi-agent travel assistant. The system does not feel personalized because one prompt is clever. It feels personalized because the workflow knows what to remember, what to update, what to route forward, and what to leave out. In this post, I use that travel assistant to explain three ideas that matter far more in production than in toy demos: state management, user feedback accomplishment, and dynamic context through static and dynamic instructions.
+    </p>
+
+    <div class="hero-grid">
+      <div class="panel pad">
+        <p style="margin:0;color:#dbe5fc;font-size:1.03rem">
+          The travel assistant begins by identifying the user, loading long-term preferences, and collecting trip intent. It then moves through flight booking, hotel booking, itinerary creation, and itinerary refinement. At each stage, the manager agent decides which specialist should run next and which slice of context belongs in that call. That is the core of contextual engineering: the system behaves intelligently because context is curated step by step rather than dumped wholesale into one giant prompt.
+        </p>
+        <div class="metric-grid">
+          <div class="metric"><strong>Long-term</strong><span>Profile, preferences, travel habits</span></div>
+          <div class="metric"><strong>Short-term</strong><span>Pending choices, approvals, current stage</span></div>
+          <div class="metric"><strong>Dynamic</strong><span>Step-specific handoffs and fresh feedback</span></div>
+        </div>
+        <div class="callout">
+          Context engineering is really a systems problem: what the model sees, what it remembers, what it retrieves just in time, and what it hands off after each stage.
+        </div>
+      </div>
+      <div class="panel pad quote">
+        <p>
+          The useful question is not only <em>“what prompt should I write?”</em><br/><br/>
+          It is also <em>“what should this agent know right now, what should it ignore, and what should be handed off next?”</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+
+<section id="concept">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>From prompt engineering to contextual engineering</h2>
+      <p>
+        Prompt engineering matters, but it is a narrower discipline. It optimizes one interaction. Contextual engineering is the more mature systems view: it asks what the model should see, what memory should be loaded, what state should be trusted, what fresh results belong in the next call, and how that context should change after each output.
+      </p>
+    </div>
+
+    <div class="panel concept-block">
+      <div class="concept-panel">
+        <div class="concept-header">
+          <div>
+            <div class="concept-kicker">transition in practice</div>
+            <h3>A production agent runs on a curated context stack, not on one perfect prompt</h3>
+          </div>
+          <p>
+            In this travel workflow, the manager keeps rebuilding the stack at every stage so the next specialist sees only what matters now. That is the shift from prompt writing to context orchestration.
+          </p>
+        </div>
+
+        <div class="transition-strip">
+          <div class="transition-card">
+            <h4>Prompt engineering</h4>
+            <p>Best for single-turn tasks where the main challenge is phrasing the instruction well.</p>
+          </div>
+          <div class="transition-arrow">→</div>
+          <div class="transition-card">
+            <h4>Contextual engineering</h4>
+            <p>Best for agentic systems where memory, state, approvals, retrieval, and handoffs have to be curated repeatedly across a workflow.</p>
+          </div>
+        </div>
+
+        <div class="stack-rows">
+          <div class="stack-row">
+            <div class="row-label">
+              <h4>Static layer</h4>
+              <p>Stable instructions that define the behavior boundary.</p>
+            </div>
+            <div class="row-track">
+              <div class="token-grid">
+                <span class="token static">System role</span>
+                <span class="token static">Agent instructions</span>
+                <span class="token static">Guardrails</span>
+                <span class="token static">Output format</span>
+              </div>
+              <div class="track-note">This layer changes rarely. It defines who the specialist is and what it is allowed to do.</div>
+            </div>
+            <div class="row-side">
+              <div><strong>Stable</strong>Defines the role and the contract.</div>
+            </div>
+          </div>
+
+          <div class="stack-row">
+            <div class="row-label">
+              <h4>Dynamic layer</h4>
+              <p>Live context assembled just for the current step.</p>
+            </div>
+            <div class="row-track">
+              <div class="token-grid">
+                <span class="token memory">User profile</span>
+                <span class="token memory">Saved preferences</span>
+                <span class="token live">Session state</span>
+                <span class="token live">Approved trip details</span>
+                <span class="token live">Selected flight</span>
+                <span class="token live">Selected hotel</span>
+                <span class="token live">Latest feedback</span>
+                <span class="token live">Fresh search results</span>
+              </div>
+              <div class="track-note">This layer changes at every transition. It is where memory, recency, and task-specific context combine.</div>
+            </div>
+            <div class="row-side">
+              <div><strong>Adaptive</strong>Determines what the model should know right now.</div>
+            </div>
+          </div>
+
+          <div class="stack-row">
+            <div class="row-label">
+              <h4>Orchestration layer</h4>
+              <p>The manager curates and routes the context stack forward.</p>
+            </div>
+            <div class="row-track">
+              <div class="curator">
+                <div class="curator-box">
+                  <strong>Manager</strong>
+                  Reads stage, approvals, and pending state
+                </div>
+                <div class="arrow">→</div>
+                <div class="curator-box">
+                  <strong>Context curation</strong>
+                  Filters, compresses, and scopes the next handoff
+                </div>
+                <div class="arrow">→</div>
+                <div class="curator-box">
+                  <strong>Specialist agent</strong>
+                  Produces a question, tool call, approval-ready summary, or refined output
+                </div>
+              </div>
+            </div>
+            <div class="row-side">
+              <div><strong>Iterative</strong>Every output updates the state for the next step.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-foot">
+          In this travel system, the planner, booking agents, and itinerary agents behave coherently not because they all see everything, but because the manager keeps curating the right combination of stable rules, persistent memory, current task state, and the latest user feedback before every handoff.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="intro">
+  <div class="wrapper grid-2">
+    <div class="panel card">
+      <div class="section-head">
+        <h2>How the travel assistant works</h2>
+      </div>
+      <p>
+        The root manager orchestrates the workflow. The travel planner establishes identity and trip intent. The flight booking agent handles timing, airport logic, and airline preferences. The hotel booking agent uses approved flight dates, family composition, and budget cues to find the right stay. The itinerary agent then builds a plan using all approved context, and the itinerary refiner loops on user feedback until the result is accepted.
+      </p>
+      <p>
+        That sounds simple in prose, but under the hood it only works because the system is stateful. User identity and preferences persist across sessions. Pending selections live in short-term memory while the workflow is active. Approvals convert temporary state into confirmed state. And every specialist agent gets a narrow context slice rather than the entire conversation history.
+      </p>
+    </div>
+    <div class="panel card">
+      <div class="section-head">
+        <h2>Why this is a good way to explain contextual engineering</h2>
+      </div>
+      <p>
+        Travel planning naturally forces the workflow to be incremental. Dates matter. Family composition matters. Dietary restrictions matter. Weekend flexibility matters. The hotel decision changes what makes sense for the itinerary. Feedback changes the itinerary again. It is exactly the kind of environment where poor context management leads to brittle behavior, repeated questions, and generic outputs.
+      </p>
+      <p>
+        That is why this case study is useful: the system has to preserve continuity without overloading the model, and it has to route the right context to the right specialist at the right time. Anthropic’s context-engineering guidance frames the core challenge in almost the same way: context is finite, iterative, and needs to be curated at every step of the agent loop.<sup><a href="#src-anthropic">[1]</a></sup>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>A manager-orchestrated architecture with scoped specialists</h2>
+      <p>
+        I did not want one overloaded generalist prompt. I wanted a manager that routes control across specialist agents. The planner is responsible for user identity and trip intent. The booking agents focus on flights and hotels. The itinerary pair handles planning and revision. This makes the workflow easier to reason about and much easier to control from a context perspective.
+      </p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="panel arch-one">
+        <div class="arch-headline">
+          <div class="manager">
+            <h3>Travel Manager</h3>
+            <p>Owns routing, stage transitions, approval checks, and final report generation.</p>
+          </div>
+          <div class="arch-stages">
+            <div class="stage">
+              <h4>Travel Planner</h4>
+              <p>Loads identity, recalls preferences, captures destination, dates, traveler count, and trip-level remarks.</p>
+              <div class="pills">
+                <span class="pill">identity</span>
+                <span class="pill">persistent preferences</span>
+                <span class="pill">trip context</span>
+              </div>
+            </div>
+            <div class="stage">
+              <h4>Flight Booking</h4>
+              <p>Uses approved trip details plus stored flight preferences to narrow search windows and shortlist options.</p>
+              <div class="pills">
+                <span class="pill">home city</span>
+                <span class="pill">date flexibility</span>
+                <span class="pill">flight approval</span>
+              </div>
+            </div>
+            <div class="stage">
+              <h4>Hotel Booking</h4>
+              <p>Uses approved flight dates, family composition, budget guidance, and hotel preferences to find the right stay.</p>
+              <div class="pills">
+                <span class="pill">family context</span>
+                <span class="pill">amenities</span>
+                <span class="pill">hotel approval</span>
+              </div>
+            </div>
+            <div class="stage">
+              <h4>Itinerary Planning + Refinement</h4>
+              <p>Builds the first itinerary, then loops on user feedback until the manager sees an explicit approval signal.</p>
+              <div class="pills">
+                <span class="pill">approved flight</span>
+                <span class="pill">approved hotel</span>
+                <span class="pill">feedback loop</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel arch-two">
+        <div class="flowline">
+          <div class="node">
+            <h4>Persistent Profile</h4>
+            <p>Home city, family composition, dietary and travel preferences.</p>
+          </div>
+          <div class="node">
+            <h4>Scoped Handoff</h4>
+            <p>The manager injects only the stage-relevant slice of context.</p>
+          </div>
+          <div class="node">
+            <h4>Specialist Agent</h4>
+            <p>The active agent reasons over a smaller and cleaner context window.</p>
+          </div>
+          <div class="node">
+            <h4>Approval Gate</h4>
+            <p>Pending state becomes trusted state only after user confirmation.</p>
+          </div>
+          <div class="node">
+            <h4>Next Stage</h4>
+            <p>Approved state is handed forward to the next specialist.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="state">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>State management is the real operating layer</h2>
+      <p>
+        The most important part of this system is not the prose in the prompts. It is the state model. I persist stable user preferences across sessions, and I keep short-term task state alive across the current workflow. Long-term memory tells the system who the user is and how they usually travel. Short-term memory tells the workflow what is currently pending, what has already been approved, and what should happen next.
+      </p>
+    </div>
+
+    <div class="memory-layout">
+      <div class="panel code-card">
+        <div class="code-head">Example persistent user profile</div>
+        <pre>{
+  &quot;user_id&quot;: &quot;ays&quot;,
+  &quot;about_user&quot;: {
+    &quot;home_city&quot;: &quot;Austin&quot;,
+    &quot;number_of_travelers&quot;: &quot;3&quot;,
+    &quot;travel_style&quot;: &quot;travels with family&quot;,
+    &quot;family_composition&quot;: &quot;Travels with wife and one infant&quot;
+  },
+  &quot;flight_preferences&quot;: {
+    &quot;cabin_class&quot;: &quot;Economy&quot;,
+    &quot;layover_preference&quot;: &quot;Non-stop flights only&quot;,
+    &quot;baggage&quot;: &quot;1 checked bag&quot;,
+    &quot;special_requests&quot;: &quot;Prefers airlines with a good stroller policy for families&quot;
+  },
+  &quot;hotel_preferences&quot;: {
+    &quot;amenities&quot;: &quot;luxury pools, hot baths&quot;
+  },
+  &quot;itinerary_preferences&quot;: {
+    &quot;activity_type&quot;: &quot;Theme parks&quot;,
+    &quot;pace&quot;: &quot;Balanced, with downtime included&quot;,
+    &quot;food_preferences&quot;: &quot;Strictly vegetarian, enjoys Indian cuisine (including for breakfast), pasta, and visiting good cafes&quot;,
+    &quot;dietary_restrictions&quot;: &quot;Vegetarian&quot;,
+    &quot;local_transport_preference&quot;: &quot;Ride-sharing (Uber/Lyft)&quot;
+  },
+  &quot;general_preferences&quot;: {
+    &quot;vacation_type&quot;: &quot;adventure, relaxation, and sightseeing&quot;,
+    &quot;budget_consideration&quot;: &quot;Prefers value and quality over the absolute cheapest option, especially for small price differences.&quot;,
+    &quot;booking_flexibility&quot;: &quot;Flexible to travel any weekend to find the best deals&quot;,
+    &quot;kid_friendly&quot;: &quot;True&quot;,
+    &quot;travel_constraints&quot;: &quot;prefers weekend travel due to weekday job&quot;,
+    &quot;trip_duration&quot;: &quot;4-5 days&quot;,
+    &quot;booking_preference&quot;: &quot;Prefers a smooth, hassle-free booking process, especially for hotels, to avoid previous issues.&quot;
+  },
+  &quot;dislikes&quot;: {
+    &quot;flight_dislike&quot;: &quot;morning flights&quot;
+  },
+  &quot;metadata&quot;: {
+    &quot;created_at&quot;: &quot;2026-03-19T21:44:46&quot;,
+    &quot;updated_at&quot;: &quot;2026-03-24T14:21:22&quot;,
+    &quot;profile_version&quot;: 1
+  }
+}</pre>
+      </div>
+
+      <div class="memory-cards">
+        <div class="memory-card panel">
+          <h3>Long-term memory</h3>
+          <p><strong>What lives here:</strong> home city, family composition, flight preferences, dietary preferences, hotel amenity preferences, booking habits.</p>
+          <p><strong>Why it matters:</strong> the system starts with continuity instead of amnesia.</p>
+        </div>
+        <div class="memory-card panel">
+          <h3>Short-term workflow state</h3>
+          <p><strong>What lives here:</strong> destination, candidate dates, pending selections, approved flight, approved hotel, latest itinerary draft, current stage.</p>
+          <p><strong>Why it matters:</strong> every agent step reads the most recent truth instead of guessing.</p>
+        </div>
+        <div class="memory-card panel">
+          <h3>Pending vs approved</h3>
+          <p><strong>Pending:</strong> useful but not final.</p>
+          <p><strong>Approved:</strong> safe to hand forward as trusted context.</p>
+        </div>
+        <div class="memory-card panel">
+          <h3>Why this is contextual engineering</h3>
+          <p>Because context is not only chat history. It is structured operating memory that gets loaded, updated, narrowed, and routed across the workflow.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="feedback">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>User feedback accomplishment is where the workflow proves itself</h2>
+      <p>
+        I do not just want the system to hear comments. I want it to translate comments into concrete state transitions and improved outputs. Below, I show that progression from planning, to flight narrowing, to hotel confirmation, and then finally the itinerary refinement loop where explicit feedback becomes the next state update.
+      </p>
+    </div>
+
+    
+    <div class="stage-showcase">
+      <div class="panel stage-card">
+        <div class="stage-top"><h3>Planning stage</h3><span style="color:var(--muted)">identity + preference recall</span></div>
+        <div class="stage-body">
+          <div class="refine-chat" style="border-radius:0; border:none; box-shadow:none;">
+            <div class="chat-body">
+              <div class="msg-row"><div class="bubble assistant">Of course, I remember you! It's great to see you again. I know you enjoy weekend trips that are a good mix of adventure and relaxation. Where are you and your family planning to go for your next trip?<div class="state-chip">profile loaded</div></div></div>
+              <div class="msg-row user"><div class="bubble user">I am planning to go to Orlando, FL</div></div>
+              <div class="msg-row"><div class="bubble assistant">Excellent choice! Orlando is a fantastic destination with so much to offer. How many people will be traveling?<div class="state-chip">destination saved</div></div></div>
+              <div class="msg-row user"><div class="bubble user">As usual</div></div>
+              <div class="msg-row"><div class="bubble assistant">Got it, so that will be the usual three of you — you, your wife, and your infant. When are you thinking of going?<div class="state-chip">family context reused</div></div></div>
+            </div>
+          </div>
+          <div class="explain">
+            <h4>What happened here</h4>
+            <p>The planner recognized a returning user, loaded saved preference context, and asked the next question from that remembered state instead of restarting from zero.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel stage-card">
+        <div class="stage-top"><h3>Flight stage</h3><span style="color:var(--muted)">stored constraints narrow the next question</span></div>
+        <div class="stage-body">
+          <div class="refine-chat" style="border-radius:0; border:none; box-shadow:none;">
+            <div class="chat-body">
+              <div class="msg-row"><div class="bubble assistant">Thanks for waiting. I see your home city is Austin, and you prefer non-stop, economy flights, avoiding morning departures. To find the best prices for your 4-5 day trip, would you be open to traveling from Thursday, September 10th to Monday, September 14th?<div class="state-chip">flight preferences applied</div></div></div>
+            </div>
+          </div>
+          <div class="explain">
+            <h4>What happened here</h4>
+            <p>The flight agent used remembered home city, cabin class, and disliked departure windows to ask a more precise follow-up instead of sending the user through a generic intake flow.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel stage-card">
+        <div class="stage-top"><h3>Hotel stage</h3><span style="color:var(--muted)">pending state gets turned into an approval-ready summary</span></div>
+        <div class="stage-body">
+          <div class="refine-chat" style="border-radius:0; border:none; box-shadow:none;">
+            <div class="chat-body">
+              <div class="msg-row user"><div class="bubble user">please keep a little for sight seeing and theme parks</div></div>
+              <div class="msg-row"><div class="bubble assistant">Of course. That's a very sensible approach. How does a budget of around $250-$300 per night for the hotel sound? This would leave you with a solid amount, roughly $500 to $800, for your theme park tickets and other expenses.<div class="state-chip">budget adjusted from trip context</div></div></div>
+              <div class="msg-row user"><div class="bubble user">sounds good</div></div>
+              <div class="msg-row"><div class="bubble assistant">Great. Just to confirm, I'll be looking for a kid-friendly hotel in Orlando for your family of three, checking in on Friday, September 11th, and checking out on Monday, September 14th. Your budget is around $250-$300 per night, and a great pool is a must-have. Does that all sound correct?<div class="state-chip">hotel summary ready for approval</div></div></div>
+            </div>
+          </div>
+          <div class="explain">
+            <h4>What happened here</h4>
+            <p>The hotel agent converted accumulated context into a concise confirmation checkpoint: family size, travel window, budget band, and must-have amenities were all gathered before the stage moved forward.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="refine-layout">
+        <div class="panel loop-hero">
+          <h3 class="loop-title serif-title">Feedback is Not Just Input; It’s a State Transition</h3>
+          <p class="loop-sub">
+            Explicit feedback loops allow for human-in-the-loop control, increasing trust and reliability. Feedback is not just more text; it is a signal used to refine state until an explicit approval is received. This idea is strongly aligned with Anthropic’s emphasis on iterative context curation and with ADK-style production agent design where state and handoffs are first-class concerns.<sup><a href="#src-anthropic">[1]</a></sup> <sup><a href="#src-adk">[2]</a></sup>
+          </p>
+          <div class="loop-flow">
+            <div class="loop-box">Draft Itinerary</div>
+            <div class="loop-box">Get User Feedback</div>
+            <div class="loop-box">Update State</div>
+            <div class="loop-box">Refine Itinerary</div>
+          </div>
+          <div class="explain" style="margin-top:18px; border:1px solid var(--line); border-radius:20px;">
+            <h4>What happened here</h4>
+            <p>The itinerary loop differs from the earlier stages because the system is no longer gathering missing facts. It is now improving a draft. The user points out what should change, the manager stores that feedback as the latest state signal, and the refiner updates the itinerary while keeping all previously approved context intact.</p>
+          </div>
+        </div>
+
+        <div class="refine-chat">
+          <div class="chat-top">
+            <div>Itinerary refinement stage</div>
+            <div class="dots"><span></span><span></span><span></span></div>
+          </div>
+          <div class="chat-body">
+            <div class="msg-row user"><div class="bubble user">Try adding some more activity for my kid in here</div></div>
+            <div class="msg-row"><div class="bubble assistant">Got your feedback. Revising the itinerary now.<div class="state-chip">feedback stored in state</div></div></div>
+            <div class="msg-row"><div class="bubble assistant">The revised itinerary now includes more infant-friendly attractions, gentler pacing, and clearer downtime windows so the day stays enjoyable instead of overloaded.<div class="state-chip">latest itinerary updated</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section id="context">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>Dynamic context means combining stable rules with live state</h2>
+      <p>
+        Every agent in this workflow runs with static instructions and dynamic context. Static instructions define the role, the output format, the stage boundary, and the things the agent must not assume. Dynamic context carries the current user state, approved outputs from earlier stages, latest feedback, and active task-specific details. That layering is what makes specialist agents feel informed without becoming overloaded.
+      </p>
+    </div>
+
+    <div class="context-split">
+      <div class="context-box panel">
+        <h3>Static instructions</h3>
+        <ul class="checklist">
+          <li>Who the agent is</li>
+          <li>What the agent is responsible for</li>
+          <li>Which tools or actions it may use</li>
+          <li>What it must not assume</li>
+          <li>How it should format the next output</li>
+        </ul>
+      </div>
+      <div class="context-box panel">
+        <h3>Dynamic context</h3>
+        <ul class="checklist">
+          <li>Returning user profile and saved preferences</li>
+          <li>Approved trip details</li>
+          <li>Selected flight and hotel</li>
+          <li>Fresh search outputs</li>
+          <li>The latest correction, revision, or approval signal</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="panel card">
+        <h3 style="margin-top:0;font-family:Inter,system-ui,sans-serif;">What this looks like in practice</h3>
+        <p>
+          The planner should know identity, prior preferences, and trip intent. The flight agent should know home city, traveler count, flexibility, and flight dislikes. The hotel agent should know approved dates, family composition, amenity needs, and hotel budget. The itinerary agent should know what has already been approved plus dietary restrictions, pace, and the latest feedback cycle.
+        </p>
+      </div>
+      <div class="panel card">
+        <h3 style="margin-top:0;font-family:Inter,system-ui,sans-serif;">Why this matters technically</h3>
+        <p>
+          When each agent gets only the context that belongs to its stage, context windows stay leaner and the model is less likely to drift into irrelevant reasoning. Anthropic describes effective context engineering as continuously curating a finite context resource; the ADK-oriented production view similarly emphasizes shaping state, instructions, and interfaces around each step.<sup><a href="#src-anthropic">[1]</a></sup> <sup><a href="#src-adk">[2]</a></sup> <sup><a href="#src-fullstack">[3]</a></sup>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="wrapper">
+    <div class="section-head">
+      <h2>Technical references that influenced this framing</h2>
+      <p>
+        I kept the article grounded in the travel workflow itself, but these sources helped sharpen the framing around finite context, iterative curation, stateful production agents, and full-stack contextual engineering.
+      </p>
+    </div>
+
+    <div class="sources">
+      <div class="source-item panel" id="src-anthropic">
+        <h4>[1] Anthropic — Effective context engineering for AI agents</h4>
+        <p><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></p>
+      </div>
+      <div class="source-item panel" id="src-adk">
+        <h4>[2] Raphael Mansuy — Context Engineering: Inside Google’s ADK Architecture for Production AI Agents</h4>
+        <p><a href="https://medium.com/@raphael.mansuy/context-engineering-inside-googles-adk-architecture-for-production-ai-agents-083151ddcf61" target="_blank" rel="noopener noreferrer">https://medium.com/@raphael.mansuy/context-engineering-inside-googles-adk-architecture-for-production-ai-agents-083151ddcf61</a></p>
+      </div>
+      <div class="source-item panel" id="src-fullstack">
+        <h4>[3] Fareed Khan — Full-Stack Contextual Engineering for AI Agents</h4>
+        <p><a href="https://levelup.gitconnected.com/full-stack-contextual-engineering-for-ai-agents-435ae0169b68" target="_blank" rel="noopener noreferrer">https://levelup.gitconnected.com/full-stack-contextual-engineering-for-ai-agents-435ae0169b68</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrapper">
+    <div class="panel footer-card">
+      <p>
+        This piece uses one concrete system to explain contextual engineering from an implementation point of view: persistent preferences, short-term workflow state, specialist handoffs, and refinement loops that turn feedback into better downstream behavior.
+      </p>
+      <div class="signature">
+        <strong>Ayush Sekhsaria</strong>
+        <span>Senior AI Engineer, HCA</span>
+      </div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
